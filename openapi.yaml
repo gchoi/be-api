@@ -1,0 +1,272 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /date-available/:
+    get:
+      tags:
+      - date-available
+      summary: Get Date Available
+      description: 'Gets the list of the dates available for the requested month.
+
+
+        Args
+
+        -------
+
+        - yyyymm (str):   requested month, ex) 202308
+
+
+        Returns
+
+        -------
+
+        - List of the dates available in the month: List(int)'
+      operationId: get_date_available_date_available__get
+      parameters:
+      - name: yyyymm
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Yyyymm
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                title: Response Get Date Available Date Available  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /gt-update/:
+    put:
+      tags:
+      - gt-update
+      summary: Update Ground Truth
+      description: 'Updates the ground truth for the block-CAD matching candidates.
+
+
+        Args
+
+        -------
+
+        - block_id (str): ID of the requested block
+
+        - cad_id (str):   ID of the CAD to set as ground truth
+
+
+        Returns
+
+        -------
+
+        - List of the blocks updated: List[Block]'
+      operationId: update_ground_truth_gt_update__put
+      parameters:
+      - name: block_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Block Id
+      - name: cad_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Cad Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Block'
+                title: Response Update Ground Truth Gt Update  Put
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /yard-data/:
+    get:
+      tags:
+      - yard-data
+      summary: Get Yard Data
+      description: 'Gets the P.E. Yard data (am/pm) for the requested date.
+
+
+        Args
+
+        -------
+
+        - yyyymmdd (str): ID of the requested block
+
+        - cad_id (str):   ID of the CAD to set as ground truth
+
+
+        Returns
+
+        -------
+
+        - List of the blocks updated: List[Block]'
+      operationId: get_yard_data_yard_data__get
+      parameters:
+      - name: yyyymmdd
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Yyyymmdd
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeYard'
+                title: Response Get Yard Data Yard Data  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    Block:
+      properties:
+        block_id:
+          type: string
+          title: Block Id
+        status:
+          type: string
+          title: Status
+        image:
+          type: string
+          format: binary
+          title: Image
+        bounding_boxes:
+          items:
+            $ref: '#/components/schemas/BoundingBoxPoints'
+          type: array
+          title: Bounding Boxes
+        matching_cads:
+          items:
+            $ref: '#/components/schemas/MatchingCad'
+          type: array
+          title: Matching Cads
+      type: object
+      required:
+      - block_id
+      - status
+      - image
+      - bounding_boxes
+      - matching_cads
+      title: Block
+    BoundingBoxPoints:
+      properties:
+        points:
+          $ref: '#/components/schemas/Point'
+      type: object
+      required:
+      - points
+      title: BoundingBoxPoints
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MatchingCad:
+      properties:
+        cad_id:
+          type: string
+          title: Cad Id
+        image:
+          type: string
+          format: binary
+          title: Image
+        gt:
+          type: boolean
+          title: Gt
+          default: false
+      type: object
+      required:
+      - cad_id
+      - image
+      title: MatchingCad
+    PeYard:
+      properties:
+        yard_id:
+          type: string
+          title: Yard Id
+        location:
+          type: string
+          title: Location
+          default: DOCK1
+        image:
+          type: string
+          format: binary
+          title: Image
+        blocks:
+          items:
+            $ref: '#/components/schemas/Block'
+          type: array
+          title: Blocks
+      type: object
+      required:
+      - yard_id
+      - image
+      - blocks
+      title: PeYard
+    Point:
+      properties:
+        x:
+          type: integer
+          title: X
+        y:
+          type: integer
+          title: Y
+      type: object
+      required:
+      - x
+      - y
+      title: Point
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
